@@ -19,8 +19,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        // Import bcryptjs dynamically to avoid Edge Runtime issues
-        const bcrypt = await import("bcryptjs")
+        // Import crypto utilities that are Edge Runtime compatible
+        const { verifyPassword } = await import("./crypto")
 
         const user = await prisma.user.findUnique({
           where: {
@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(
+        const isPasswordValid = await verifyPassword(
           credentials.password as string,
           user.password
         )
