@@ -47,11 +47,17 @@ export async function loginUser(formData: FormData) {
   }
 
   try {
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirect: false,
     })
+    
+    if (result?.error) {
+      return { error: "Invalid credentials" }
+    }
+    
+    return { success: true }
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
