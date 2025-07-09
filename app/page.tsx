@@ -1,81 +1,95 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { VisitorsChart } from "../components/visitors-chart";
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
-export default function Dashboard() {
+export default async function HomePage() {
+  const session = await auth()
+  
+  if (!session) {
+    redirect("/login")
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-blue-50 dark:bg-blue-950">
-      <header className="w-full bg-blue-600 text-white py-6 px-8 shadow-md">
-        <h1 className="text-3xl font-bold">Acme Inc.</h1>
-      </header>
-      <main className="flex-1 flex flex-col md:flex-row gap-8 p-8">
-        {/* Sidebar */}
-        <aside className="w-full md:w-64 bg-white dark:bg-blue-900 rounded-lg shadow p-4 mb-8 md:mb-0">
-          <nav className="flex flex-col gap-2">
-            <Button variant="outline" className="justify-start w-full">Quick Create</Button>
-            <Button variant="ghost" className="justify-start w-full">Dashboard</Button>
-            <Button variant="ghost" className="justify-start w-full">Lifecycle</Button>
-            <Button variant="ghost" className="justify-start w-full">Analytics</Button>
-            <Button variant="ghost" className="justify-start w-full">Projects</Button>
-            <Button variant="ghost" className="justify-start w-full">Team</Button>
-          </nav>
-        </aside>
-        {/* Main Content */}
-        <section className="flex-1 flex flex-col gap-8">
-          {/* Top Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Total Revenue</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$1,250.00</div>
-                <div className="text-xs text-blue-700 dark:text-blue-200">Trending up this month</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>New Customers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
-                <div className="text-xs text-blue-700 dark:text-blue-200">Down 20% this period</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Accounts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">45,678</div>
-                <div className="text-xs text-blue-700 dark:text-blue-200">Strong user retention</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Growth Rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">4.5%</div>
-                <div className="text-xs text-blue-700 dark:text-blue-200">Steady performance increase</div>
-              </CardContent>
-            </Card>
-          </div>
-          {/* Chart */}
+    <div className="container mx-auto p-8">
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Welcome to Your Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Hello, {session.user?.name || session.user?.email}!
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Total Visitors</CardTitle>
+              <CardTitle>Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              <VisitorsChart />
+              <div className="space-y-2">
+                <p><strong>Name:</strong> {session.user?.name || "Not provided"}</p>
+                <p><strong>Email:</strong> {session.user?.email}</p>
+                <p><strong>Status:</strong> <span className="text-green-600">Active</span></p>
+              </div>
             </CardContent>
           </Card>
-        </section>
-      </main>
-      <footer className="w-full text-center py-4 text-blue-700 dark:text-blue-200 bg-blue-100 dark:bg-blue-900">
-        &copy; {new Date().getFullYear()} Acme Inc.
-      </footer>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/profile">View Profile</Link>
+                </Button>
+                <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
+                  Settings
+                </button>
+                <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
+                  Help & Support
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>• Logged in successfully</p>
+                <p>• Account created</p>
+                <p>• Welcome to the platform!</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Getting Started</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="prose">
+              <p>
+                Congratulations on successfully setting up authentication! This dashboard is protected 
+                and only accessible to authenticated users.
+              </p>
+              <ul className="mt-4 space-y-2">
+                <li>✅ User registration working</li>
+                <li>✅ User login working</li>
+                <li>✅ Route protection active</li>
+                <li>✅ Session management enabled</li>
+                <li>✅ Secure password hashing</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }
