@@ -1,0 +1,50 @@
+name: CI
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from the repository
+      - uses: actions/checkout@v2
+
+      # Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22 # Replace with your Node.js version
+          cache: 'npm' # Cache npm dependencies
+
+      # Install dependencies
+      - name: Install modules
+        run: npm install
+        
+      # Add .env
+      - name: Set up environment variables
+        run: echo "Setting up environment variables"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+   
+      # Run ESLint to check code quality
+      - name: Run ESLint
+        run: npm run lint
+
+      # Build the Next.js app
+      - name: Build Next.js app
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run build
+
+      # Run tests
+      - name: Run tests
+        run: npm run test
+
+      # Verify the build output
+      - name: Verify build output
+        run: ls -la .next # Ensure the `.next` folder exists after the build
