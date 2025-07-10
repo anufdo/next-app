@@ -43,6 +43,8 @@ jobs:
 
       # Run tests
       - name: Run tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm run test
 
       # Verify the build output
