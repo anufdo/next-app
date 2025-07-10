@@ -1,6 +1,6 @@
 # Next.js 15 Authentication System
 
-A complete authentication system built with Next.js 15, Auth.js (NextAuth.js), Prisma ORM, and SQLite database.
+A complete authentication system built with Next.js 15, Auth.js (NextAuth.js), Prisma ORM, and MySQL database.
 
 ## Features
 
@@ -19,7 +19,7 @@ A complete authentication system built with Next.js 15, Auth.js (NextAuth.js), P
 
 - **Framework**: Next.js 15 with App Router
 - **Authentication**: Auth.js (NextAuth.js v5)
-- **Database**: SQLite with Prisma ORM
+- **Database**: MySQL with Prisma ORM
 - **Styling**: Tailwind CSS
 - **UI Components**: Radix UI
 - **Password Hashing**: bcryptjs
@@ -45,9 +45,10 @@ A complete authentication system built with Next.js 15, Auth.js (NextAuth.js), P
    cp .env.example .env.local
    ```
    
+
    Update `.env.local` with your values:
    ```
-   DATABASE_URL="file:./dev.db"
+   DATABASE_URL="mysql://<username>:<password>@localhost:3306/<database>"
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="your-secret-key-here"
    ```
@@ -190,7 +191,7 @@ model Session {
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | SQLite database file path | Yes |
+| `DATABASE_URL` | MySQL connection string | Yes |
 | `NEXTAUTH_URL` | Application URL | Yes |
 | `NEXTAUTH_SECRET` | JWT signing secret | Yes |
 
