@@ -3,7 +3,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import CredentialsProvider from "next-auth/providers/credentials"
 
-const prisma = new PrismaClient()
+let prisma: PrismaClient
+try {
+  prisma = new PrismaClient()
+} catch (error) {
+  console.error("Prisma Client initialization failed:", error)
+  throw error
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -49,6 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     })
   ],
+  trustHost: true,
   session: {
     strategy: "jwt"
   },
