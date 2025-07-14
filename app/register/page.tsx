@@ -1,25 +1,22 @@
-import RegisterForm from "@/components/RegisterForm"
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
+"use client";
 
-export default async function RegisterPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ email?: string }>
-}) {
-  const session = await auth()
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-  if (session) {
-    redirect("/")
-  }
+export default function RegisterPage() {
+  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
+  const router = useRouter();
 
-  // Await the searchParams promise and extract the email
-  const params = await searchParams
-  const email = typeof params.email === "string" ? params.email : undefined
+  useEffect(() => {
+    if (authStatus === 'authenticated') {
+      router.push('/');
+    }
+  }, [authStatus, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <RegisterForm email={email} />
+      <Authenticator />
     </div>
-  )
+  );
 }

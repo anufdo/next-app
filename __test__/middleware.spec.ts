@@ -3,7 +3,7 @@
 jest.mock('@/lib/auth', () => ({
   auth: (handler: any) => (req: any) => handler(req)
 }));
-import middleware from '@/middleware';
+import { middleware } from '@/middleware';
 import { NextResponse } from 'next/server';
 
 describe('middleware', () => {
@@ -25,14 +25,14 @@ describe('middleware', () => {
 
   it('allows public routes for unauthenticated users', () => {
     const req = { nextUrl: { pathname: '/login' }, url: 'http://localhost/login', auth: null } as any;
-    const res = middleware(req, { params: {} } as any);
+    const res = middleware(req);
     expect(NextResponse.next).toHaveBeenCalled();
     expect(res).toEqual({ next: true });
   });
 
   it('redirects unauthenticated users from protected routes', () => {
     const req = { nextUrl: { pathname: '/profile' }, url: 'http://localhost/profile', auth: null } as any;
-    const res = middleware(req, { params: {} } as any);
+    const res = middleware(req);
     expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', req.url));
     expect(res).toEqual({ redirectUrl: 'http://localhost/login' });
   });
@@ -40,7 +40,7 @@ describe('middleware', () => {
   it('redirects authenticated users away from login/register pages', () => {
     ['/login', '/register'].forEach(path => {
       const req = { nextUrl: { pathname: path }, url: `http://localhost${path}`, auth: { id: '1' } } as any;
-      const res = middleware(req, { params: {} } as any);
+      const res = middleware(req);
       expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/', req.url));
       expect(res).toEqual({ redirectUrl: 'http://localhost/' });
     });
@@ -48,7 +48,7 @@ describe('middleware', () => {
 
   it('allows authenticated users to access protected routes', () => {
     const req = { nextUrl: { pathname: '/dashboard' }, url: 'http://localhost/dashboard', auth: { id: '1' } } as any;
-    const res = middleware(req, { params: {} } as any);
+    const res = middleware(req);
     expect(NextResponse.next).toHaveBeenCalled();
     expect(res).toEqual({ next: true });
   });

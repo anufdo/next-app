@@ -1,26 +1,30 @@
-import { auth } from "@/lib/auth"
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from 'next/server';
+import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { runWithAmplifyServerContext } from '@/lib/amplify-server-utils';
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl
-  const isAuthenticated = !!req.auth
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/register", "/api/auth"]
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  const authenticated = await runWithAmplifyServerContext({
+    nextServerContext: { request, response },
+    operation: async (contextSpec) => {
+      try {
+        // contextSpec type is inferred from runWithAmplifyServerContext
+        const session = await fetchAuthSession(contextSpec);
+        return session.tokens !== undefined;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    },
+  });
 
-  // If user is not authenticated and trying to access a protected route
-  if (!isAuthenticated && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/login", req.url))
+  if (authenticated) {
+    return response;
   }
 
-  // If user is authenticated and trying to access login/register pages
-  if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/", req.url))
-  }
-
-  return NextResponse.next()
-})
+  return NextResponse.redirect(new URL('/login', request.url));
+}
 
 export const config = {
   matcher: [
@@ -32,6 +36,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)",
+    '/((?!api|_next/static|_next/image|favicon.ico|login|register).*)',
   ],
-}
+};
