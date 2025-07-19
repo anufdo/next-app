@@ -1,23 +1,15 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuth } from "@/lib/hooks/useAuth"
-import { logoutUserWithAmplify } from "@/lib/actions/amplify-auth"
 
 export default function Navigation() {
-  const { isLoading, isAuthenticated, user } = useAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
 
-  const handleLogout = async () => {
-    const result = await logoutUserWithAmplify()
-    if (result.success) {
-      router.push("/login")
-    }
-  }
-
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,17 +35,20 @@ export default function Navigation() {
           </Link>
           
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
+            {session ? (
               <>
                 <Button variant="ghost" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {user?.name || user?.email}
+                  Welcome, {session.user?.name || session.user?.email}
                 </span>
                 <Button
                   variant="outline"
-                  onClick={handleLogout}
+                  onClick={async () => {
+                    await signOut({ callbackUrl: "/login", redirect: false })
+                    router.refresh()
+                  }}
                 >
                   Logout
                 </Button>

@@ -1,10 +1,6 @@
 "use client"
 
-import { Amplify } from "aws-amplify"
-import outputs from "@/amplify_outputs.json"
-import "@aws-amplify/ui-react/styles.css"
-
-Amplify.configure(outputs)
+import { SessionProvider } from "next-auth/react"
 
 export default function Providers({
   children,
@@ -12,8 +8,8 @@ export default function Providers({
   children: React.ReactNode
 }) {
   return (
-    <>
+    <SessionProvider>
       {children}
-    </>
+    </SessionProvider>
   )
 }
