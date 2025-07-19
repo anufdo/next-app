@@ -7,8 +7,12 @@ import Link from "next/link"
 
 export default async function HomePage() {
   const session = await auth()
+  // Fix type for session to allow user property
+  type SessionUser = { name?: string; email?: string }
+  type Session = { user?: SessionUser } | null
+  const typedSession = session as Session
   
-  if (!session) {
+  if (!typedSession) {
     redirect("/login")
   }
 
@@ -18,7 +22,7 @@ export default async function HomePage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Welcome to Your Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Hello, {session.user?.name || session.user?.email}!
+            Hello, {typedSession.user?.name || typedSession.user?.email}!
           </p>
         </div>
         
@@ -29,8 +33,8 @@ export default async function HomePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p><strong>Name:</strong> {session.user?.name || "Not provided"}</p>
-                <p><strong>Email:</strong> {session.user?.email}</p>
+                <p><strong>Name:</strong> {typedSession.user?.name || "Not provided"}</p>
+                <p><strong>Email:</strong> {typedSession.user?.email}</p>
                 <p><strong>Status:</strong> <span className="text-green-600">Active</span></p>
               </div>
             </CardContent>

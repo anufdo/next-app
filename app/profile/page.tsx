@@ -1,12 +1,25 @@
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client";
 
-export default async function ProfilePage() {
-  const session = await auth()
-  
-  if (!session) {
-    redirect("/login")
+import { useAuth } from "@/lib/hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export default function ProfilePage() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  // Fix type for user to allow attributes property
+  type UserWithAttributes = { attributes?: { name?: string; email?: string } }
+  const typedUser = user as UserWithAttributes
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -18,7 +31,7 @@ export default async function ProfilePage() {
             Manage your account information
           </p>
         </div>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Account Information</CardTitle>
@@ -30,19 +43,19 @@ export default async function ProfilePage() {
                   Full Name
                 </label>
                 <p className="mt-1 text-lg">
-                  {session.user?.name || "Not provided"}
+                  {typedUser?.attributes?.name || "Not provided"}
                 </p>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Email Address
                 </label>
                 <p className="mt-1 text-lg">
-                  {session.user?.email}
+                  {typedUser?.attributes?.email}
                 </p>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Account Status
@@ -56,7 +69,7 @@ export default async function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Security</CardTitle>
@@ -64,7 +77,7 @@ export default async function ProfilePage() {
           <CardContent>
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Your password is securely encrypted using bcrypt hashing.
+                Your password is securely encrypted.
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Password</span>
@@ -75,5 +88,5 @@ export default async function ProfilePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
