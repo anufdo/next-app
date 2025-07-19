@@ -1,25 +1,15 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { Button } from "@/components/ui/button"
+import { signOut, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function Navigation() {
-  const { isLoading, isAuthenticated, user } = useAuth();
-  // Fix type for user to allow attributes property
-  type UserWithAttributes = { attributes?: { name?: string; email?: string } }
-  const typedUser = user as UserWithAttributes
-  const { signOut } = useAuthenticator();
-  const router = useRouter();
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
-  const handleLogout = () => {
-    signOut();
-    router.push("/login");
-  };
-
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,7 +23,7 @@ export default function Navigation() {
           </div>
         </div>
       </nav>
-    );
+    )
   }
 
   return (
@@ -43,17 +33,23 @@ export default function Navigation() {
           <Link href="/" className="text-xl font-bold">
             My App
           </Link>
-
+          
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
+            {session ? (
               <>
                 <Button variant="ghost" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {typedUser?.attributes?.name || typedUser?.attributes?.email}
+                  Welcome, {session.user?.name || session.user?.email}
                 </span>
-                <Button variant="outline" onClick={handleLogout}>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    await signOut({ callbackUrl: "/login", redirect: false })
+                    router.refresh()
+                  }}
+                >
                   Logout
                 </Button>
               </>
@@ -68,5 +64,5 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

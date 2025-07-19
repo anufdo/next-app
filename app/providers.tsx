@@ -1,20 +1,15 @@
-"use client";
+"use client"
 
-import { Amplify } from "aws-amplify";
-import outputs from "@/amplify_outputs.json";
-import "@aws-amplify/ui-react/styles.css";
-import { Authenticator } from '@aws-amplify/ui-react';
-
-Amplify.configure(outputs);
+import { SessionProvider } from "next-auth/react"
 
 export default function Providers({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <Authenticator.Provider>
-        {children}
-    </Authenticator.Provider>
-  );
+    <SessionProvider>
+      {children}
+    </SessionProvider>
+  )
 }
