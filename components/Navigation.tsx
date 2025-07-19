@@ -1,23 +1,21 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { useAuth } from "@/lib/hooks/useAuth"
+import { logoutUserWithAmplify } from "@/lib/actions/amplify-auth"
 
 export default function Navigation() {
-  const { isLoading, isAuthenticated, user } = useAuth();
-  // Fix type for user to allow attributes property
-  type UserWithAttributes = { attributes?: { name?: string; email?: string } }
-  const typedUser = user as UserWithAttributes
-  const { signOut } = useAuthenticator();
-  const router = useRouter();
+  const { isLoading, isAuthenticated, user } = useAuth()
+  const router = useRouter()
 
-  const handleLogout = () => {
-    signOut();
-    router.push("/login");
-  };
+  const handleLogout = async () => {
+    const result = await logoutUserWithAmplify()
+    if (result.success) {
+      router.push("/login")
+    }
+  }
 
   if (isLoading) {
     return (
@@ -33,7 +31,7 @@ export default function Navigation() {
           </div>
         </div>
       </nav>
-    );
+    )
   }
 
   return (
@@ -43,7 +41,7 @@ export default function Navigation() {
           <Link href="/" className="text-xl font-bold">
             My App
           </Link>
-
+          
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
@@ -51,9 +49,12 @@ export default function Navigation() {
                   <Link href="/profile">Profile</Link>
                 </Button>
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {typedUser?.attributes?.name || typedUser?.attributes?.email}
+                  Welcome, {user?.name || user?.email}
                 </span>
-                <Button variant="outline" onClick={handleLogout}>
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                >
                   Logout
                 </Button>
               </>
@@ -68,5 +69,5 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

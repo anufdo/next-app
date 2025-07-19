@@ -1,25 +1,12 @@
-"use client";
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { useAuth } from "@/lib/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function ProfilePage() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  // Fix type for user to allow attributes property
-  type UserWithAttributes = { attributes?: { name?: string; email?: string } }
-  const typedUser = user as UserWithAttributes
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isLoading, isAuthenticated, router]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+export default async function ProfilePage() {
+  const session = await auth()
+  
+  if (!session) {
+    redirect("/login")
   }
 
   return (
@@ -31,7 +18,7 @@ export default function ProfilePage() {
             Manage your account information
           </p>
         </div>
-
+        
         <Card>
           <CardHeader>
             <CardTitle>Account Information</CardTitle>
@@ -43,19 +30,19 @@ export default function ProfilePage() {
                   Full Name
                 </label>
                 <p className="mt-1 text-lg">
-                  {typedUser?.attributes?.name || "Not provided"}
+                  {session.user?.name || "Not provided"}
                 </p>
               </div>
-
+              
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Email Address
                 </label>
                 <p className="mt-1 text-lg">
-                  {typedUser?.attributes?.email}
+                  {session.user?.email}
                 </p>
               </div>
-
+              
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Account Status
@@ -69,7 +56,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader>
             <CardTitle>Security</CardTitle>
@@ -77,7 +64,7 @@ export default function ProfilePage() {
           <CardContent>
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Your password is securely encrypted.
+                Your password is securely encrypted using bcrypt hashing.
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Password</span>
@@ -88,5 +75,5 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
