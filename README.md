@@ -1,6 +1,6 @@
 # Next.js 15 Authentication System
 
-A complete authentication system built with Next.js 15, Auth.js (NextAuth.js), Prisma ORM, and MySQL database.
+A complete authentication system built with Next.js 15, Auth.js, Prisma ORM, and MySQL database.
 
 ## Features
 
