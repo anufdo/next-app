@@ -77,9 +77,9 @@ A complete authentication system built with Next.js 15, Auth.js, Prisma ORM, and
 │   ├── login/page.tsx                   # Login page
 │   ├── register/page.tsx                # Registration page
 │   ├── profile/page.tsx                 # User profile page
-│   ├── layout.tsx                       # Root layout with providers
+│   ├── layout.tsx                       # Root layout
 │   ├── page.tsx                         # Protected dashboard
-│   └── providers.tsx                    # Session provider wrapper
+│   
 ├── components/
 │   ├── ui/                              # Reusable UI components
 │   ├── LoginForm.tsx                    # Login form component
