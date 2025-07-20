@@ -1,15 +1,13 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
 import Link from "next/link"
 
 export default function Navigation() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { isSignedIn, isLoaded } = useUser()
 
-  if (status === "loading") {
+  if (!isLoaded) {
     return (
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,29 +33,21 @@ export default function Navigation() {
           </Link>
           
           <div className="flex items-center space-x-4">
-            {session ? (
+            {isSignedIn ? (
               <>
                 <Button variant="ghost" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
-                <span className="text-sm text-muted-foreground">
-                  Welcome, {session.user?.name || session.user?.email}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    await signOut({ callbackUrl: "/login", redirect: false })
-                    router.refresh()
-                  }}
-                >
-                  Logout
-                </Button>
+                <UserButton afterSignOutUrl="/" />
               </>
             ) : (
               <div className="space-x-2">
-                <Button asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
+                <SignInButton mode="modal">
+                  <Button variant="ghost">Sign In</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button>Sign Up</Button>
+                </SignUpButton>
               </div>
             )}
           </div>
