@@ -3,32 +3,25 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { loginUserWithAmplify } from "@/lib/actions/amplify-auth"
+import { loginUser } from "@/lib/actions/auth"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
     setError("")
-    
-    const result = await loginUserWithAmplify(formData)
+    const result = await loginUser(formData)
     
     if (result?.error) {
       setError(result.error)
-      if (result.requiresConfirmation && result.user?.email) {
-        // Redirect to a confirmation page if the user needs to confirm their email
-        router.push(`/register?email=${encodeURIComponent(result.user.email)}`);
-      }
+      setIsLoading(false)
     } else if (result?.success) {
-      // Redirect to home page on successful login
-      router.push("/")
+      // Force a full reload to update session state everywhere
+      window.location.href = "/"
     }
-    setIsLoading(false)
   }
 
   return (
